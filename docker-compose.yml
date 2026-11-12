@@ -1,0 +1,58 @@
+# RealWorld apps only. Joins adh_local. Uses shared Postgres DB `realworld`.
+# No second Postgres, no Redis, no Buzz.
+# Prerequisite: adh-iac-local `make infra-up` (postgres hostname on adh_local).
+
+services:
+  api:
+    build:
+      context: ../realworld-api
+      dockerfile: overlay/Dockerfile
+    container_name: realworld-api
+    networks:
+      - adh_local
+    ports:
+      - "3100:8000"
+    environment:
+      APP_ENV: prod
+      SECRET_KEY: ${REALWORLD_SECRET_KEY:-realworld-local-secret}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-adh}:${POSTGRES_PASSWORD:-adh}@postgres:5432/realworld
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/articles')",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 50s
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ../realworld-web
+      dockerfile: overlay/Dockerfile
+      args:
+        API_ROOT: http://localhost:3100/api
+    container_name: realworld-web
+    networks:
+      - adh_local
+    ports:
+      - "3101:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/ >/dev/null"]
+      interval: 10s
+      timeout: 3s
+      retries: 8
+      start_period: 20s
+    restart: unless-stopped
+
+networks:
+  adh_local:
+    name: adh_local
+    external: true
