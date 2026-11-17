@@ -1,6 +1,6 @@
-# RealWorld apps only. Joins adh_local. Uses shared Postgres DB `realworld`.
+# RealWorld apps only. Joins lab_local. Uses shared Postgres DB `realworld`.
 # No second Postgres, no Redis, no Buzz.
-# Prerequisite: adh-iac-local `make infra-up` (postgres hostname on adh_local).
+# Prerequisite: ../dev-infra-lab `make infra-up` (postgres hostname on lab_local).
 
 services:
   api:
@@ -9,7 +9,7 @@ services:
       dockerfile: overlay/Dockerfile
     container_name: realworld-api
     networks:
-      - adh_local
+      - lab_local
     ports:
       - "3100:8000"
     environment:
@@ -38,7 +38,7 @@ services:
         API_ROOT: http://localhost:3100/api
     container_name: realworld-web
     networks:
-      - adh_local
+      - lab_local
     ports:
       - "3101:80"
     depends_on:
@@ -53,6 +53,6 @@ services:
     restart: unless-stopped
 
 networks:
-  adh_local:
-    name: adh_local
+  lab_local:
+    name: lab_local
     external: true

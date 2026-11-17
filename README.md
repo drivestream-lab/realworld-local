@@ -2,7 +2,7 @@
 
 Product compose for the RealWorld proof tenant. **Apps only.**
 
-Joins the shared `adh_local` network and uses Postgres database `realworld` on `adh-postgres`. No second Postgres, no Buzz.
+Joins the shared **`lab_local`** network from [dev-infra-lab](../dev-infra-lab) and uses Postgres database `realworld` on `lab-postgres` (Compose DNS: `postgres`). No second Postgres, no Buzz.
 
 | Service | Port | Image |
 | --- | --- | --- |
@@ -10,7 +10,7 @@ Joins the shared `adh_local` network and uses Postgres database `realworld` on `
 | web | `3101` | build `../realworld-web` (API_ROOT `http://localhost:3100/api`) |
 
 ```bash
-# from adh-iac-local
+# from dev-infra-lab
 make infra-up
 
 # from this repo
